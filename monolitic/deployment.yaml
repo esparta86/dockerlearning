@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monolith-training
+  labels:
+    app: monolith-training
+spec:
+  replicas: 3
+  strategy:
+    type: Recreate
+    # type: RollingUpdate
+    # rollingUpdate:
+    #   maxSurge: 25%
+    #   maxUnavailable: 25%
+  selector:
+    matchLabels:
+      app: monolith-training
+  template:
+    metadata:
+      labels:
+        app: monolith-training
+    spec:
+      containers:
+      - name: monolith-training
+        image: esparta2018/development:tigo-training-app-v1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
