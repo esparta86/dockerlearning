@@ -1,8 +1,11 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nginx
 spec:
+  selector:
+    matchLabels:
+      app: nginx
   replicas: 1
   template:
     metadata:
@@ -14,6 +17,17 @@ spec:
         image: nginx
         ports:
         - containerPort: 80
+        env:
+          - name: ENVIRONMENT
+            valueFrom:
+              configMapKeyRef:
+                name: nginx-conf
+                key: environment
+          - name: REGION
+            valueFrom:
+              configMapKeyRef:
+                name: nginx-conf
+                key: region                
         volumeMounts:
         - mountPath: /etc/nginx # Montaje de nginx-conf volumen en el directorio del contenedor  /etc/nginx
           readOnly: true
