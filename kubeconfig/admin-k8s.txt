@@ -1,0 +1,17 @@
+{
+kubectl config set-cluster kubernetes-ha \
+--certificate-authority=ca.pem \
+--embed-certs=true \
+--server=https://10.0.0.6:6443 \
+--kubeconfig=admin-k8s.kubeconfig
+kubectl config set-credentials admin-k8s \
+--client-certificate=admin-k8s.pem \
+--client-key=admin-k8s-key.pem \
+--embed-certs=true \
+--kubeconfig=admin-k8s.kubeconfig
+kubectl config set-context default \
+--cluster=kubernetes-ha \
+--user=lisandroantonio \
+--kubeconfig=admin-k8s.kubeconfig
+kubectl config use-context default --kubeconfig=admin-k8s.kubeconfig
+}
