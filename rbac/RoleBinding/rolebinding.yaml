@@ -1,0 +1,18 @@
+apiVersion: rbac.authorization.k8s.io/v1
+# Este role binding permite que jane consulte (lea) pods en el namespace stage
+# Tu tienes que haber creado previamente un Rol con el nombre "pod-reader" en el namespace stage
+kind: RoleBinding
+metadata:
+  name: read-pods
+  namespace: stage
+subjects:
+# Puedes establecer mas de un tipo
+- kind: User
+  name: jane # "name" is case sensitive
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  # "roleRef" especifica la union entre un Role / ClusterRole
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+

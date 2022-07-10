@@ -1,0 +1,141 @@
+def  appNameI = 'globalweb-app'
+
+//  @branchName will have the name of git branch
+def  branchName = "testing"
+
+// def  namePipeline = "web-app-ti-is-devenv-external"
+def  namePipeline = "globalwebapp-deployment"
+
+//@workspacePipeline Nothing to do here, it will store the complete path of workspace where the slave pod will clone the repository
+def  workspacePipeline = "/home/jenkins/agent/workspace/${namePipeline}"
+
+def  imageTag = "esparta2018/development:${appNameI}.${branchName}.${env.BUILD_NUMBER}"
+
+def registry = "esparta2018/development"
+def registryCredential = 'esparta2018-dockerhub'
+def imageName = 'globalweb-app'
+def dockerImage = ''
+
+
+//def imageContainerBaseM = "gcr.io/devops8687/is-maven-3-6-jdk8:v1"
+def imageContainerBaseM ="maven:3.8.4-jdk-8-slim"
+def nameImageM = "maven"
+
+// Start the definition of pipeline
+pipeline {
+   agent {
+    kubernetes {
+      label 'globalweb-app'
+      slaveConnectTimeout 200
+      defaultContainer 'jnlp'
+      yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+labels:
+  component: ci
+spec:
+  # Use service account that can deploy to all namespaces
+  # This service account is intern and it was created inside cluster
+  serviceAccountName: jenkins-agent
+  nodeSelector:
+    kubernetes.io/hostname: worker-2
+  containers:
+  - name: jnlp
+    tty: true  
+  - name:  ${nameImageM}
+    image: ${imageContainerBaseM}
+    resources:
+      requests:
+        cpu: 200m
+        memory: 200Mi
+      limits:
+        cpu: 200m
+        memory: 200Mi    
+    command:
+      - cat
+    tty: true
+  - name: docker-custom
+    image: docker
+    command:
+      - cat
+    tty: true
+    volumeMounts:
+      - name: docker-sock
+        mountPath: /var/run
+  - name: kubectl
+    image: gcr.io/cloud-builders/kubectl
+    command:
+      - cat
+    tty: true
+  volumes:
+    - name: docker-sock
+      hostPath:
+        path: /var/run
+"""
+}
+  }
+  environment {
+		DOCKERHUB_CREDENTIALS=credentials('esparta2018-dockerhub')
+	}
+  stages {
+  
+   stage('Start'){
+
+      steps {
+          
+          git branch: 'main', url: 'https://github.com/esparta86/dockerlearning.git'
+
+        }
+   }
+
+
+   stage('Create & Publish Container') {
+     
+      steps {
+            container('docker-custom') {
+              sh "ls -ls"
+              sh "cd alpine"
+              sh "docker build -t ${imageTag} alpine/"
+            }
+           }
+      }
+
+  stage('Login to docker hub'){
+    steps{
+       container('docker-custom'){
+          sh 'echo $DOCKERHUB_CREDENTIALS | docker login -u esparta2018 --password-stdin'
+       }
+    }
+  }
+
+  stage('Push Docker Image'){
+     steps {
+            container('docker-custom') {
+               sh "docker push ${imageTag} "
+            }
+      }
+    }
+
+  stage('kubectl'){
+     steps {
+            container('kubectl') {
+               
+               //sh "kubectl run pod-${env.BUILD_NUMBER}  --image=${imageTag} -n jenkinstigo "
+
+               sh("kubectl get ns ")
+
+            }
+      }
+    }
+
+
+
+
+    
+
+ }
+ 
+  
+
+}
