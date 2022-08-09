@@ -11,6 +11,6 @@ spec:
     resources:
       requests:
         memory: "1024M"
-        cpu: "400m"
+        cpu: "4"
   nodeSelector:
     performance: low

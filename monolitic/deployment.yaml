@@ -17,6 +17,10 @@ spec:
       app: monolith-training
   template:
     metadata:
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "9464"
+        prometheus.io/scrape: "false"
       labels:
         app: monolith-training
     spec:
@@ -26,3 +30,7 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
+        resources:
+          requests:
+            cpu: "2"
+            memory: "2048M"

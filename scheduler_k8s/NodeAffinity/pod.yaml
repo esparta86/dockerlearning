@@ -5,18 +5,18 @@ metadata:
 spec:
   affinity:
     nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: kubernetes.io/hostname
-            operator: In
-            values:
-            - gke-sace2022-nodepool-a-3b9bb965-b2sz
+      # requiredDuringSchedulingIgnoredDuringExecution:
+      #   nodeSelectorTerms:
+      #   - matchExpressions:
+      #     - key: kubernetes.io/hostname
+      #       operator: In
+      #       values:
+      #       - gke-sace2022-sace-pool-3a2dd1f5-3ntx
       preferredDuringSchedulingIgnoredDuringExecution:
-      - weight: 1
+      - weight: 99
         preference:
           matchExpressions:
-          - key: permformance
+          - key: performance
             operator: In
             values:
             - low
